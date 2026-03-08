@@ -1,21 +1,47 @@
 """Test fixtures for the Third Eye backend."""
-import asyncio
-
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+import app.models  # noqa: F401 — registers all models with Base.metadata
+from app.core.database import Base, async_session_factory, engine
+from app.core.security import hash_password
 from app.main import app
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+@pytest.fixture(scope="session", autouse=True)
+async def create_tables():
+    """Create all DB tables once per test session."""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def seed_admin(create_tables):
+    """Seed the admin user once per test session."""
+    from sqlalchemy import select
+
+    from app.models.user import User
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.email == "admin@thirdeye.io"))
+        if result.scalar_one_or_none() is None:
+            admin = User(
+                email="admin@thirdeye.io",
+                hashed_password=hash_password("thirdeye_admin"),
+                full_name="Test Admin",
+                role="admin",
+                is_active=True,
+            )
+            session.add(admin)
+            await session.commit()
 
 
 @pytest.fixture
-async def client():
+async def client(create_tables):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
@@ -26,7 +52,7 @@ async def auth_headers(client):
     """Return Authorization headers for a logged-in admin user."""
     resp = await client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "admin"},
+        json={"email": "admin@thirdeye.io", "password": "thirdeye_admin"},
     )
     if resp.status_code == 200:
         token = resp.json()["access_token"]

@@ -7,7 +7,7 @@ async def test_login_returns_token(client):
     """POST /api/v1/auth/login with valid credentials returns access_token."""
     resp = await client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "admin"},
+        json={"email": "admin@thirdeye.io", "password": "thirdeye_admin"},
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -19,7 +19,7 @@ async def test_login_returns_token(client):
 async def test_login_invalid_credentials(client):
     resp = await client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "wrongpassword"},
+        json={"email": "admin@thirdeye.io", "password": "wrongpassword"},
     )
     assert resp.status_code == 401
 
