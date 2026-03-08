@@ -73,6 +73,18 @@ async def update_vendor(
     return vendor_to_response(vendor)
 
 
+@router.post("/{vendor_id}/rescore", status_code=status.HTTP_202_ACCEPTED)
+async def trigger_rescore(
+    vendor_id: str,
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    vendor = await get_vendor_by_id(db, vendor_id)
+    if vendor is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vendor not found")
+    return {"message": "Rescore queued", "vendorId": vendor_id}
+
+
 @router.get("/{vendor_id}/history")
 async def get_vendor_history(
     vendor_id: str,

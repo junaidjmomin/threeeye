@@ -71,7 +71,6 @@ async def seeded_vendor(client, auth_headers):
             "name": "Test Vendor Ltd",
             "tier": "standard",
             "category": "Technology",
-            "compositeScore": 65,
         },
         headers=auth_headers,
     )
@@ -84,12 +83,30 @@ async def seeded_vendor(client, auth_headers):
 
 
 @pytest.fixture
-async def seeded_alert(client, auth_headers, seeded_vendor):
-    """Return the first alert or a placeholder."""
-    resp = await client.get("/api/v1/alerts", headers=auth_headers)
-    if resp.status_code == 200 and resp.json():
-        return resp.json()[0]
-    return {"id": "test-alert-id", "status": "new", "severity": "high"}
+async def seeded_alert(seeded_vendor):
+    """Create and return a test alert directly in the DB."""
+    from app.core.database import async_session_factory
+    from app.models.alert import Alert
+
+    async with async_session_factory() as session:
+        alert = Alert(
+            vendor_id=seeded_vendor["id"],
+            vendor_name=seeded_vendor["name"],
+            severity="high",
+            title="Test Alert - CI",
+            description="Automated test alert for CI",
+            dimension="cybersecurity",
+            status="new",
+        )
+        session.add(alert)
+        await session.commit()
+        await session.refresh(alert)
+        return {
+            "id": alert.id,
+            "status": alert.status,
+            "severity": alert.severity,
+            "vendorId": alert.vendor_id,
+        }
 
 
 @pytest.fixture
@@ -100,7 +117,6 @@ async def seeded_workflow(client, auth_headers, seeded_vendor):
         json={
             "vendorId": seeded_vendor["id"],
             "title": "Test workflow",
-            "description": "Test",
             "priority": "medium",
         },
         headers=auth_headers,

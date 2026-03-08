@@ -20,7 +20,7 @@ async def test_list_vendors(client, auth_headers):
 async def test_list_vendors_filter_by_band(client, auth_headers, seeded_vendor):
     resp = await client.get(
         "/api/v1/vendors",
-        params={"risk_band": "critical"},
+        params={"band": "critical"},
         headers=auth_headers,
     )
     assert resp.status_code == 200
