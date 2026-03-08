@@ -5,13 +5,8 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 
-def _run(coro):
-    """Run a coroutine in a new event loop (safe to call outside async context)."""
-    return asyncio.run(coro)
-
-
 async def _setup_db():
-    """Create tables and seed admin user once before any tests run."""
+    """Create tables and seed admin user. Called once via asyncio.run() before tests."""
     from sqlalchemy import select
 
     import app.models  # noqa: F401 — registers all models with Base.metadata
@@ -35,10 +30,14 @@ async def _setup_db():
             session.add(admin)
             await session.commit()
 
+    # Dispose pool so tests create fresh connections in their own event loop
+    await engine.dispose()
 
-def pytest_sessionstart(session):
-    """Create DB schema and seed data before any test runs."""
-    _run(_setup_db())
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_db():
+    """Sync session fixture — uses asyncio.run() to avoid pytest-asyncio loop conflicts."""
+    asyncio.run(_setup_db())
 
 
 @pytest.fixture
