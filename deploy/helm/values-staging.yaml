@@ -1,0 +1,27 @@
+# Staging overrides
+namespace: thirdeye-staging
+
+replicaCount:
+  backend: 1
+  frontend: 1
+  celeryScoring: 1
+  celeryAlerts: 1
+  celeryDefault: 1
+  celeryBeat: 1
+
+ingress:
+  hosts:
+    - host: staging.thirdeye.internal
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /ws
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+
+autoscaling:
+  enabled: false

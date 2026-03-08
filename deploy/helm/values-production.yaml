@@ -1,0 +1,46 @@
+# Production overrides — AWS ap-south-1 (Mumbai) for RBI data residency
+namespace: thirdeye-prod
+
+replicaCount:
+  backend: 3
+  frontend: 2
+  celeryScoring: 2
+  celeryAlerts: 1
+  celeryDefault: 1
+  celeryBeat: 1  # singleton
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+ingress:
+  hosts:
+    - host: app.thirdeye.bank  # replace with production domain
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /ws
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+
+resources:
+  backend:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  celery:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi

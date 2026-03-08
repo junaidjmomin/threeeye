@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thirdeye-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: thirdeye
+    app.kubernetes.io/managed-by: Helm
+data:
+  LLM_PROVIDER: {{ .Values.env.LLM_PROVIDER | quote }}
+  CORS_ORIGINS: {{ .Values.env.CORS_ORIGINS | quote }}
+  DATABASE_ECHO: "false"
+  ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "480"

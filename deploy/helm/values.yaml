@@ -1,0 +1,97 @@
+# Default values — targets staging environment
+# Override with values-production.yaml for production
+
+replicaCount:
+  backend: 1
+  frontend: 1
+  celeryScoring: 1
+  celeryAlerts: 1
+  celeryDefault: 1
+  celeryBeat: 1
+
+image:
+  registry: ""  # set to your ECR registry, e.g. 123456789.dkr.ecr.ap-south-1.amazonaws.com
+  backend:
+    repository: thirdeye/backend
+    tag: latest
+    pullPolicy: Always
+  frontend:
+    repository: thirdeye/frontend
+    tag: latest
+    pullPolicy: Always
+
+service:
+  backend:
+    type: ClusterIP
+    port: 8000
+  frontend:
+    type: ClusterIP
+    port: 80
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/certificate-arn: ""  # set ACM cert ARN
+  hosts:
+    - host: staging.thirdeye.internal
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /ws
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+
+resources:
+  backend:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  frontend:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  celery:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+env:
+  DATABASE_URL: ""         # injected from K8s Secret
+  REDIS_URL: ""            # injected from K8s Secret
+  SECRET_KEY: ""           # injected from K8s Secret
+  LLM_PROVIDER: "anthropic"
+  ANTHROPIC_API_KEY: ""    # injected from K8s Secret
+  CORS_ORIGINS: ""
+
+namespace: thirdeye-staging
+
+postgresql:
+  enabled: false  # use RDS in production; set DATABASE_URL in secret
+
+redis:
+  enabled: false  # use ElastiCache in production; set REDIS_URL in secret

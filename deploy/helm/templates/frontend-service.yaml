@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: thirdeye-frontend
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: thirdeye-frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  selector:
+    app: thirdeye-frontend
+  ports:
+    - port: {{ .Values.service.frontend.port }}
+      targetPort: 80
+      protocol: TCP

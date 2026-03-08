@@ -1,0 +1,38 @@
+{{- $queues := dict "scoring" .Values.replicaCount.celeryScoring "alerts" .Values.replicaCount.celeryAlerts "default" .Values.replicaCount.celeryDefault }}
+{{- range $queue, $replicas := $queues }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thirdeye-celery-{{ $queue }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: thirdeye-celery-{{ $queue }}
+spec:
+  replicas: {{ $replicas }}
+  selector:
+    matchLabels:
+      app: thirdeye-celery-{{ $queue }}
+  template:
+    metadata:
+      labels:
+        app: thirdeye-celery-{{ $queue }}
+    spec:
+      containers:
+        - name: celery-worker
+          image: {{ $.Values.image.registry }}/{{ $.Values.image.backend.repository }}:{{ $.Values.image.backend.tag }}
+          imagePullPolicy: {{ $.Values.image.backend.pullPolicy }}
+          command: ["celery", "-A", "app.workers.celery_app", "worker", "-Q", "{{ $queue }}", "--loglevel=info"]
+          envFrom:
+            - configMapRef:
+                name: thirdeye-config
+            - secretRef:
+                name: thirdeye-secrets
+          resources:
+            requests:
+              cpu: {{ $.Values.resources.celery.requests.cpu }}
+              memory: {{ $.Values.resources.celery.requests.memory }}
+            limits:
+              cpu: {{ $.Values.resources.celery.limits.cpu }}
+              memory: {{ $.Values.resources.celery.limits.memory }}
+{{- end }}

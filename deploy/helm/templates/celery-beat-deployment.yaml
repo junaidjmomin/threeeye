@@ -1,0 +1,37 @@
+# Celery Beat — singleton scheduler. Must have exactly 1 replica.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thirdeye-celery-beat
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: thirdeye-celery-beat
+spec:
+  replicas: 1  # Always 1 — multiple beat instances cause duplicate tasks
+  selector:
+    matchLabels:
+      app: thirdeye-celery-beat
+  strategy:
+    type: Recreate  # Ensure only one instance runs at a time
+  template:
+    metadata:
+      labels:
+        app: thirdeye-celery-beat
+    spec:
+      containers:
+        - name: celery-beat
+          image: {{ .Values.image.registry }}/{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          command: ["celery", "-A", "app.workers.celery_app", "beat", "--loglevel=info", "--scheduler", "celery.beat:PersistentScheduler"]
+          envFrom:
+            - configMapRef:
+                name: thirdeye-config
+            - secretRef:
+                name: thirdeye-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

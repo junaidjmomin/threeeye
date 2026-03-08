@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "thirdeye-consortium-agent": {
+      "command": "python",
+      "args": ["C:/Users/HP/Desktop/Threeeye/mcp-server/server.py"],
+      "env": {
+        "SEPOLIA_RPC_URL": "",
+        "BROADCASTER_PRIVKEY": "",
+        "CONTRACT_ADDRESS": "",
+        "ZG_SERVING_ENDPOINT": "https://inference.0g.ai/v1",
+        "ZG_API_KEY": "",
+        "ZG_MODEL": "meta-llama/Llama-3-8b-instruct"
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+[submodule "vendor-guardian"]
+	path = vendor-guardian
+	url = https://github.com/junaidjmomin/vendor-guardian.git

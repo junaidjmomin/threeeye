@@ -1,0 +1,13 @@
+apiVersion: v2
+name: thirdeye
+description: Third Eye — AI-powered vendor risk intelligence platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - vendor-risk
+  - fintech
+  - rbi-compliance
+  - ai
+maintainers:
+  - name: ThirdEye Team

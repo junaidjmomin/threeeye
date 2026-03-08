@@ -1,0 +1,106 @@
+name: Deploy to EKS
+
+on:
+  workflow_run:
+    workflows: ["Build & Push Docker Images"]
+    types: [completed]
+    branches: [main]
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER: thirdeye-prod
+  HELM_RELEASE: thirdeye
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Helm upgrade — staging
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ./deploy/helm \
+            --namespace thirdeye-staging \
+            --create-namespace \
+            --values ./deploy/helm/values-staging.yaml \
+            --set image.backend.tag=${IMAGE_TAG::8} \
+            --set image.frontend.tag=${IMAGE_TAG::8} \
+            --set image.registry=${{ secrets.ECR_REGISTRY }} \
+            --set env.DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }} \
+            --set env.REDIS_URL=${{ secrets.STAGING_REDIS_URL }} \
+            --set env.SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --set env.ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
+            --wait --timeout 5m
+
+      - name: Smoke test — staging
+        run: |
+          BACKEND_URL="https://staging.thirdeye.internal/api/v1"
+          echo "Testing health endpoint..."
+          kubectl run smoke-test --image=curlimages/curl:latest \
+            --restart=Never --rm -it -n thirdeye-staging \
+            -- curl -sf "$BACKEND_URL/health" || exit 1
+          echo "Smoke test passed"
+
+  promote-to-production:
+    name: Promote to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      # Requires manual approval via GitHub Environments
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Helm upgrade — production
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ./deploy/helm \
+            --namespace thirdeye-prod \
+            --create-namespace \
+            --values ./deploy/helm/values-production.yaml \
+            --set image.backend.tag=${IMAGE_TAG::8} \
+            --set image.frontend.tag=${IMAGE_TAG::8} \
+            --set image.registry=${{ secrets.ECR_REGISTRY }} \
+            --set env.DATABASE_URL=${{ secrets.PROD_DATABASE_URL }} \
+            --set env.REDIS_URL=${{ secrets.PROD_REDIS_URL }} \
+            --set env.SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --set env.ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
+            --wait --timeout 10m
+
+      - name: Notify deployment
+        run: echo "Production deployment complete — tag ${IMAGE_TAG::8}"
