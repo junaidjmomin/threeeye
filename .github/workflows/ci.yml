@@ -74,6 +74,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
