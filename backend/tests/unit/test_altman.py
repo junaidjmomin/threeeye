@@ -20,13 +20,13 @@ def test_safe_zone():
 
 def test_grey_zone():
     financials = VendorFinancials(
-        working_capital=100,
+        working_capital=200,
         total_assets=1000,
-        retained_earnings=50,
-        ebit=60,
-        market_value_equity=400,
+        retained_earnings=100,
+        ebit=100,
+        market_value_equity=700,
         total_liabilities=600,
-        sales=500,
+        sales=700,
     )
     z, score, zone = calculate_altman_z(financials)
     assert 1.81 <= z <= 2.99

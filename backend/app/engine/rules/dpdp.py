@@ -4,7 +4,7 @@ from app.engine.rules.base_rule import BaseRule, RuleResult
 
 class DPDPBreachNotificationRule(BaseRule):
     name = "dpdp_breach_notification"
-    citation = "Digital Personal Data Protection Act 2023, Section 8(6)"
+    citation = "DPDP (Digital Personal Data Protection) Act 2023, Section 8(6)"
     version = "1.0.0"
 
     def evaluate(self, vendor_data: dict, signals: list[dict]) -> RuleResult:
@@ -29,7 +29,7 @@ class DPDPBreachNotificationRule(BaseRule):
 
 class DPDPPenaltySurfaceRule(BaseRule):
     name = "dpdp_penalty_surface"
-    citation = "Digital Personal Data Protection Act 2023, Section 33"
+    citation = "DPDP (Digital Personal Data Protection) Act 2023, Section 33"
     version = "1.0.0"
 
     def evaluate(self, vendor_data: dict, signals: list[dict]) -> RuleResult:

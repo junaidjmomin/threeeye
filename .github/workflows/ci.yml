@@ -57,6 +57,7 @@ jobs:
           SECRET_KEY: test-secret-key-for-ci-only
           LLM_PROVIDER: anthropic
           ANTHROPIC_API_KEY: ""
+          TESTING: "true"
         run: pytest tests/ -v --tb=short --cov=app --cov-report=xml:coverage.xml
 
       - name: Upload coverage
