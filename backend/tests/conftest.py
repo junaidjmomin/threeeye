@@ -1,30 +1,26 @@
 """Test fixtures for the Third Eye backend."""
+import asyncio
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-import app.models  # noqa: F401 — registers all models with Base.metadata
-from app.core.database import Base, async_session_factory, engine
-from app.core.security import hash_password
-from app.main import app
+
+def _run(coro):
+    """Run a coroutine in a new event loop (safe to call outside async context)."""
+    return asyncio.run(coro)
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def create_tables():
-    """Create all DB tables once per test session."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-    await engine.dispose()
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def seed_admin(create_tables):
-    """Seed the admin user once per test session."""
+async def _setup_db():
+    """Create tables and seed admin user once before any tests run."""
     from sqlalchemy import select
 
+    import app.models  # noqa: F401 — registers all models with Base.metadata
+    from app.core.database import Base, async_session_factory, engine
+    from app.core.security import hash_password
     from app.models.user import User
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     async with async_session_factory() as session:
         result = await session.execute(select(User).where(User.email == "admin@thirdeye.io"))
@@ -40,8 +36,15 @@ async def seed_admin(create_tables):
             await session.commit()
 
 
+def pytest_sessionstart(session):
+    """Create DB schema and seed data before any test runs."""
+    _run(_setup_db())
+
+
 @pytest.fixture
-async def client(create_tables):
+async def client():
+    from app.main import app
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
