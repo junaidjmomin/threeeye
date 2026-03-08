@@ -1,4 +1,8 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+AlertStatus = Literal["new", "acknowledged", "assigned", "resolved", "dismissed"]
 
 
 class AlertResponse(BaseModel):
@@ -17,5 +21,5 @@ class AlertResponse(BaseModel):
 
 
 class AlertStatusUpdate(BaseModel):
-    status: str
+    status: AlertStatus
     assigned_to: str | None = None
