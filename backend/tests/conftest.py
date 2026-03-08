@@ -1,5 +1,6 @@
 """Test fixtures for the Third Eye backend."""
 import asyncio
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 

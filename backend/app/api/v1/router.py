@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import auth, dashboard, vendors, alerts, workflows, compliance, reports, consortium, risk_trends
+from app.api.v1 import alerts, auth, compliance, consortium, dashboard, reports, risk_trends, vendors, workflows
 
 api_router = APIRouter(prefix="/api/v1")
 

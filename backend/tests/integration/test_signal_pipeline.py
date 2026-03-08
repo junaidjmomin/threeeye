@@ -3,8 +3,8 @@ Integration test: raw signal text → LLM parse → score → alert creation.
 Uses mocked LLM provider — does NOT call real API.
 """
 import json
+
 import pytest
-from unittest.mock import AsyncMock, patch
 
 from app.engine.llm.signal_parser import parse_signal
 

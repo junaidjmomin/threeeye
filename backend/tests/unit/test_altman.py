@@ -1,5 +1,5 @@
 """Tests for Altman Z-Score financial health model."""
-from app.engine.ml.altman_zscore import calculate_altman_z, VendorFinancials
+from app.engine.ml.altman_zscore import VendorFinancials, calculate_altman_z
 
 
 def test_safe_zone():

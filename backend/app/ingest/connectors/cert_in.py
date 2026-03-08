@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
@@ -28,7 +28,7 @@ class CertInConnector(BaseConnector):
             async with httpx.AsyncClient(timeout=15) as client:
                 resp = await client.get(CERT_IN_RSS)
                 resp.raise_for_status()
-                root = ET.fromstring(resp.text)
+                root = ElementTree.fromstring(resp.text)
         except Exception as exc:
             logger.error("CERT-In RSS error: %s", exc)
             return []

@@ -1,6 +1,6 @@
 """Tests for RuleEngine orchestrator — auto-discovers and runs all rules."""
+from app.engine.rules.base_rule import BaseRule
 from app.engine.rules.engine import RuleEngine
-from app.engine.rules.base_rule import BaseRule, RuleResult
 
 
 def test_rule_engine_discovers_rules():

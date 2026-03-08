@@ -84,6 +84,7 @@ def train_model_for_dimension(
     Saves to model registry. Returns the trained model.
     """
     from sklearn.ensemble import GradientBoostingRegressor  # type: ignore[import]
+
     from app.engine.ml.model_registry import save_model
 
     model = GradientBoostingRegressor(

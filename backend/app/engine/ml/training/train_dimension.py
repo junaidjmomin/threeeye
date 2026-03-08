@@ -49,8 +49,9 @@ def generate_synthetic_data(
 
 def train(dimension: str) -> None:
     from sklearn.ensemble import GradientBoostingRegressor  # type: ignore[import]
-    from sklearn.model_selection import train_test_split  # type: ignore[import]
     from sklearn.metrics import mean_absolute_error  # type: ignore[import]
+    from sklearn.model_selection import train_test_split  # type: ignore[import]
+
     from app.engine.ml.model_registry import save_model
 
     logger.info("Training model for dimension: %s", dimension)

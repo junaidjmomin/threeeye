@@ -35,8 +35,8 @@ async def _process_score_change_async(
     new_score: int,
 ) -> None:
     from app.core.database import AsyncSessionLocal
-    from app.models.vendor import Vendor
     from app.models.alert import Alert
+    from app.models.vendor import Vendor
     from app.models.workflow import WorkflowItem
     from app.services.scoring_service import compute_risk_band
 
@@ -105,13 +105,14 @@ def process_signal(signal_data: dict):
 
 
 async def _process_signal_async(signal_data: dict) -> None:
-    from app.core.database import AsyncSessionLocal
+    from sqlalchemy import select
+
     from app.core.config import settings
-    from app.models.vendor import Vendor
-    from app.models.signal import Signal
+    from app.core.database import AsyncSessionLocal
     from app.engine.llm.provider import get_provider_from_settings
     from app.engine.llm.signal_parser import parse_signal
-    from sqlalchemy import select
+    from app.models.signal import Signal
+    from app.models.vendor import Vendor
 
     if not settings.ANTHROPIC_API_KEY and not settings.OPENAI_API_KEY:
         logger.debug("No LLM API key configured — skipping signal LLM parse")
@@ -177,13 +178,15 @@ def run_compliance_rules():
 
 
 async def _run_compliance_rules_async() -> None:
-    from app.core.database import AsyncSessionLocal
-    from app.models.vendor import Vendor
-    from app.models.signal import Signal
-    from app.models.alert import Alert
-    from app.engine.rules.engine import RuleEngine
-    from sqlalchemy import select
     from datetime import timedelta
+
+    from sqlalchemy import select
+
+    from app.core.database import AsyncSessionLocal
+    from app.engine.rules.engine import RuleEngine
+    from app.models.alert import Alert
+    from app.models.signal import Signal
+    from app.models.vendor import Vendor
 
     rule_engine = RuleEngine()
     since = datetime.now(timezone.utc) - timedelta(days=1)
@@ -248,12 +251,12 @@ async def _generate_playbook_async(
     playbook_type: str,
     incident_summary: str,
 ) -> None:
-    from app.core.database import AsyncSessionLocal
     from app.core.config import settings
-    from app.models.vendor import Vendor
-    from app.models.report import Report
-    from app.engine.llm.provider import get_provider_from_settings
+    from app.core.database import AsyncSessionLocal
     from app.engine.llm.playbook_generator import generate_playbook as gen
+    from app.engine.llm.provider import get_provider_from_settings
+    from app.models.report import Report
+    from app.models.vendor import Vendor
 
     if not settings.ANTHROPIC_API_KEY and not settings.OPENAI_API_KEY:
         logger.debug("No LLM API key — skipping playbook generation")

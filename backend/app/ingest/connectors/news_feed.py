@@ -83,8 +83,9 @@ class NewsFeedConnector(BaseConnector):
 
     async def _fetch_google_rss(self, vendor_names: list[str]) -> list[RawSignal]:
         try:
-            import httpx  # type: ignore[import]
             import xml.etree.ElementTree as ET  # noqa: N817
+
+            import httpx  # type: ignore[import]
         except ImportError:
             logger.warning("httpx not installed — skipping Google RSS fetch")
             return []

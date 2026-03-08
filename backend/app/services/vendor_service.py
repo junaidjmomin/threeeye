@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.vendor import Vendor
-from app.schemas.vendor import VendorResponse, DimensionsSchema
+from app.schemas.vendor import DimensionsSchema, VendorResponse
 
 
 def vendor_to_response(v: Vendor) -> VendorResponse:

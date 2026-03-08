@@ -19,9 +19,10 @@ def _run_async(coro):
 
 async def _get_vendor_names() -> list[str]:
     """Fetch all active vendor names from the database."""
+    from sqlalchemy import select
+
     from app.core.database import AsyncSessionLocal
     from app.models.vendor import Vendor
-    from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(Vendor.name))
@@ -30,8 +31,8 @@ async def _get_vendor_names() -> list[str]:
 
 async def _ingest_and_dispatch(connector_cls, api_key: str = "", base_url: str = "") -> int:
     """Instantiate a connector, fetch signals, normalize, and dispatch."""
-    from app.ingest.normalizer import normalize_batch
     from app.ingest.dispatcher import dispatch_batch
+    from app.ingest.normalizer import normalize_batch
 
     vendor_names = await _get_vendor_names()
     if not vendor_names:

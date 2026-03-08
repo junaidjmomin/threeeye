@@ -1,5 +1,4 @@
 """Tests for scoring service and risk band calculation."""
-import pytest
 from app.services.scoring_service import compute_composite_score, compute_risk_band
 
 

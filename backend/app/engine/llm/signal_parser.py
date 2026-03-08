@@ -9,8 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from app.engine.llm.provider import LLMProvider
 from app.engine.llm.prompts.signal_parse import build_signal_parse_prompt
+from app.engine.llm.provider import LLMProvider
 
 VALID_DIMENSIONS = {
     "cybersecurity", "regulatory", "operational", "newsLegal",

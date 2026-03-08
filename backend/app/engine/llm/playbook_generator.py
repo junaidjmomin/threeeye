@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from app.engine.llm.provider import LLMProvider
 from app.engine.llm.prompts.playbook import build_playbook_prompt
+from app.engine.llm.provider import LLMProvider
 
 PLAYBOOK_TYPES = ("letter_of_concern", "remediation_ticket", "rbi_summary", "board_paper")
 

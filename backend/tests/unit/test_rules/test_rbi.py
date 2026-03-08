@@ -1,6 +1,6 @@
 """Tests for RBI outsourcing and cybersecurity framework rules."""
+from app.engine.rules.rbi_cybersecurity import RBICriticalSystemsRule, RBICybersecurityFrameworkRule
 from app.engine.rules.rbi_outsourcing import MaterialOutsourcingClassificationRule, RightToAuditRule
-from app.engine.rules.rbi_cybersecurity import RBICybersecurityFrameworkRule, RBICriticalSystemsRule
 
 
 def test_material_outsourcing_triggers_at_risk():

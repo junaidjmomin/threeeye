@@ -41,16 +41,17 @@ def rescore_vendor(self, vendor_id: str):
 
 
 async def _rescore_vendor_async(vendor_id: str) -> None:
+    from sqlalchemy import select
+
     from app.core.database import AsyncSessionLocal
-    from app.models.vendor import Vendor
-    from app.models.signal import Signal
-    from app.models.score_audit_log import ScoreAuditLog
+    from app.engine.ml.correlation_engine import detect_compound_risks
     from app.engine.ml.feature_builder import build_all_features
     from app.engine.ml.scorer import score_all_dimensions
-    from app.engine.ml.correlation_engine import detect_compound_risks
     from app.engine.rules.engine import RuleEngine
+    from app.models.score_audit_log import ScoreAuditLog
+    from app.models.signal import Signal
+    from app.models.vendor import Vendor
     from app.services.scoring_service import compute_composite_score, compute_risk_band
-    from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
         # 1. Load vendor
@@ -166,9 +167,10 @@ def rescore_all_vendors():
 
 
 async def _rescore_all_async() -> None:
+    from sqlalchemy import select
+
     from app.core.database import AsyncSessionLocal
     from app.models.vendor import Vendor
-    from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(Vendor.id))
@@ -186,10 +188,11 @@ def take_risk_trend_snapshot():
 
 
 async def _snapshot_async() -> None:
-    from app.core.database import AsyncSessionLocal
-    from app.models.vendor import Vendor
-    from app.models.risk_trend import RiskTrendSnapshot
     from sqlalchemy import select
+
+    from app.core.database import AsyncSessionLocal
+    from app.models.risk_trend import RiskTrendSnapshot
+    from app.models.vendor import Vendor
 
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(Vendor))

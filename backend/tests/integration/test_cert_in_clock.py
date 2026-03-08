@@ -2,9 +2,7 @@
 Integration test: critical cyber event → CERT-In clock activation.
 Verifies the full rule engine path including citation requirement.
 """
-import pytest
 from app.engine.rules.engine import RuleEngine
-from app.engine.rules.cert_in import CertInClockRule
 
 
 def test_critical_cyber_incident_activates_cert_in_clock():

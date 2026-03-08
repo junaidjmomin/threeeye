@@ -3,8 +3,8 @@ Report narrator: structured data → Board paper / RBI submission narrative.
 """
 from __future__ import annotations
 
-from app.engine.llm.provider import LLMProvider
 from app.engine.llm.prompts.report import build_report_prompt
+from app.engine.llm.provider import LLMProvider
 
 
 async def narrate_report(

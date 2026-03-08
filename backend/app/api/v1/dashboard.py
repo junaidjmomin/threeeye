@@ -1,20 +1,20 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
-from app.models.user import User
-from app.models.vendor import Vendor
 from app.models.alert import Alert
 from app.models.compliance import ComplianceStatus
 from app.models.risk_trend import RiskTrendSnapshot
+from app.models.user import User
+from app.models.vendor import Vendor
 from app.schemas.dashboard import (
-    DashboardSummary,
     CertInClockSummary,
-    CriticalVendorSummary,
-    RiskTrendPoint,
     ComplianceSummaryItem,
+    CriticalVendorSummary,
+    DashboardSummary,
+    RiskTrendPoint,
 )
 
 router = APIRouter()

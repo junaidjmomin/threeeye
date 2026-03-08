@@ -1,9 +1,9 @@
 """Tests for LLM signal parser with mocked provider."""
-import pytest
-from unittest.mock import AsyncMock, patch
 import json
 
-from app.engine.llm.signal_parser import parse_signal, ParsedSignal, VALID_DIMENSIONS, VALID_SIGNAL_TYPES
+import pytest
+
+from app.engine.llm.signal_parser import ParsedSignal, parse_signal
 
 
 class MockProvider:
